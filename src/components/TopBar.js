@@ -7,9 +7,24 @@ const Container = styled.section`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 90%;
+    width: 100%;
     margin: 0 auto;
-    padding: 20px 0;
+    padding: 20px 5%;
+    font-family: 'Nunito Sans', sans-serif;
+    box-shadow: 2px -1px 9px 1px rgba(153,153,153,0.3);
+
+
+    
+    h1 {
+        font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .ui.label {
+        background: none;
+        font-size: 1.1rem;
+        color: black;
+        font-weight: 700;
+    }
 
     .theme {
         display: flex;

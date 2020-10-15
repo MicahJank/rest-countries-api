@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;600;800&display=swap');
 /* http://meyerweb.com/eric/tools/css/reset/ 
    v2.0 | 20110126
    License: none (public domain)
@@ -32,6 +33,7 @@ body {
   line-height: 1;
   box-sizing: border-box;
   font-size: 62.5%;
+  font-family: 'Nunito Sans', sans-serif !important;
 }
 ol, ul {
 	list-style: none;
@@ -55,4 +57,8 @@ h1 {
 
 hr {
   margin: 0 !important;
+}
+
+.app {
+  font-size: 1.4rem;
 }
