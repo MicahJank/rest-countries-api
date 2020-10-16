@@ -117,38 +117,127 @@ const Container = styled.section`
 const CardsContainer = () => {
 
     const [countries, setCountries] = useState([]);
+    const [search, setSearch] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [timeoutID, setTimeoutID] = useState(0);
+
+    const [currentRegion, setCurrentRegion] = useState('');
+    const [regions, setRegions] = useState([
+        {
+            key: 'Africa',
+            text: 'Africa',
+            value: 'Africa'
+        },
+        {
+            key: 'Americas',
+            text: 'Americas',
+            value: 'Americas'
+        },
+        {
+            key: 'Asia',
+            text: 'Asia',
+            value: 'Asia'
+        },
+        {
+            key: 'Europe',
+            text: 'Europe',
+            value: 'Europe'
+        },
+        {
+            key: 'Oceania',
+            text: 'Oceania',
+            value: 'Oceania'
+        },
+    ])
 
 
-    // load inital countries when app first opens
+    // useEffect watches search and currentRegion for updates which we can then fire off the correct function as a result - if there is no search or region
+    // then the user must be searching for all countries
+    // current using multiple requests to make this happen, i think it would be better to use 1 request and filter the data we get back for the search by country name and region
     useEffect(() => {
-        axios.get('https://restcountries.eu/rest/v2/all')
+        if (!search && !currentRegion) {
+            axios.get(`https://restcountries.eu/rest/v2/all`)
+                .then(res => {
+                    setCountries(res.data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.log(err);
+                    setLoading(false);
+                })
+        } else if(search) {
+            clearTimeout(timeoutID);
+            const newTimeoutId = setTimeout(() => searchCountry(search), 1000);
+            setTimeoutID(newTimeoutId);
+        } else if (currentRegion) {
+            searchRegion(currentRegion);
+        }
+    }, [search, currentRegion])
+
+    const searchCountry = (country) => {
+        setLoading(true);
+        axios.get(`https://restcountries.eu/rest/v2/name/${country}`)
             .then(res => {
-                setCountries(res.data)
+                // if the user is filtering by regions we need to take it into consideration when searching and only search in those regions
+                if (currentRegion) {
+                    const filteredCountries = res.data.filter(country => country.region === currentRegion)
+                    setCountries(filteredCountries);
+                } else {
+                    setCountries(res.data);
+                }
+                setLoading(false);
             })
             .catch(err => {
-                console.log(err);
+                setCountries([])
+                setLoading(false);
             })
-    }, [])
+    }
+
+    const handleChange = (e) => {
+        setSearch(e.target.value);
+    }
+
+    const searchRegion = (regionName) => {
+        setLoading(true);
+        axios.get(`https://restcountries.eu/rest/v2/region/${regionName}`)
+            .then(res => {
+                setCountries(res.data);
+                setLoading(false);
+            })
+            .catch(err => {
+                setCountries([])
+                setLoading(false);
+            })
+    } 
+
+    const handleDropDownChange = (e, { value }) => {
+        setCurrentRegion(value);
+    }
+
+
 
     
     return (
         <Container>
             <div className='top'>
-                <Input className="search" icon='search' iconPosition='left' placeholder='Search for a country...' />
-                <Dropdown className="filter" placeholder='Filter by Region' selection options={''} />
+                <Input  onChange={handleChange} value={search} className="search" icon='search' iconPosition='left' placeholder='Search for a country...' />
+                <Dropdown className="filter" clearable placeholder='Filter by Region' selection value={currentRegion} options={regions} onChange={handleDropDownChange} />
             </div>
             {/* since i am making a call to the api when the component loads - if there is nothing in the countries state a loader will be visible */}
             <div className='cards'>
-                {countries.length ? countries.map(country => {
+                { loading ? (
+                    <Dimmer.Dimmable>
+                        <Dimmer active inverted>
+                            <Loader size='large'>Loading</Loader>
+                        </Dimmer>
+                    </Dimmer.Dimmable>
+                ) :
+                countries.length ? countries.map(country => {
                     return (
                         <Card countryData={country} />
                     )
                 }) : (
-                <Dimmer.Dimmable>
-                    <Dimmer active inverted>
-                        <Loader size='large'>Loading</Loader>
-                    </Dimmer>
-                </Dimmer.Dimmable>
+                    <h1>Couldn't find any countries!</h1>
                 )}
             </div>
         </Container>
