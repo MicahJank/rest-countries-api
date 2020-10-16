@@ -5,6 +5,7 @@ import { Input, Dropdown, Loader, Dimmer, Segment} from 'semantic-ui-react';
 import styled from 'styled-components';
 
 import Card from './Card.js';
+import { NavLink, useHistory } from 'react-router-dom';
 
 
 const Container = styled.section`
@@ -82,9 +83,14 @@ const Container = styled.section`
             left: 47%;
         }
 
-        .card {
+        a {
             width: 20%;
             margin: 20px 1px 40px 0;
+            color: black;
+        }
+
+        .card {
+            
 
             div {
                 padding-left: 25px;
@@ -120,6 +126,8 @@ const CardsContainer = () => {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
     const [timeoutID, setTimeoutID] = useState(0);
+
+    const history = useHistory();
 
     const [currentRegion, setCurrentRegion] = useState('');
     const [regions, setRegions] = useState([
@@ -234,7 +242,9 @@ const CardsContainer = () => {
                 ) :
                 countries.length ? countries.map(country => {
                     return (
-                        <Card countryData={country} />
+                        <NavLink to={`/country/${country.alpha2Code}`}>
+                            <Card countryData={country} />
+                        </NavLink>
                     )
                 }) : (
                     <h1>Couldn't find any countries!</h1>
